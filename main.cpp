@@ -74,7 +74,7 @@ void updateBall(){
     ballMain->x += ballMain->dirX * ballMain->speed;
     ballMain->y += ballMain->dirY * ballMain->speed;
 
-    if (paddleMain->isHit(ballMain)) {
+    if (paddleMain->contact(ballMain)) {
         float t = ((ballMain->x - paddleMain->x) / paddleMain->w) - 0.5f;
         ballMain->dirY = fabs(ballMain->dirY);
         ballMain->dirX = t;
