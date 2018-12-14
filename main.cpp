@@ -1,7 +1,6 @@
 #include "game.h"
 
 void vec2_norm(float& x, float &y){
-    // sets a vectors length to 1 (which means that x + y == 1)
     float length = sqrt((x * x) + (y * y));
     if (length != 0.0f) {
         length = 1.0f / length;
@@ -10,13 +9,13 @@ void vec2_norm(float& x, float &y){
     }
 }
 
-string int2str(int x){ //Converts int to string
+string scoring(int x){ //Converts int to string
     stringstream ss;
     ss << x;
     return ss.str( );
 }
 
-void drawText(float x, float y, const char* text){
+void Text(float x, float y, const char* text){
     const char *c;
     glRasterPos2f(x, y);
     for (c = text; *c != '\0'; c++) {
@@ -33,36 +32,19 @@ void enable2D(int width, int height){
     glLoadIdentity();
 }
 
-static void key(unsigned char key, int x, int y)
-{
+static void key(unsigned char key, int x, int y){
     if (key == ' ' && lives != 0) {
         ballMain->speed = 5;
         gameStart = true;
     }
-    if (key == 'r') {
-        //restart level func
+    if (key == 'r') {  //Restart Level
         levelMain->bars.clear();
         levelOne();
         ballMain->speed = 0;
         ballMain->x = (paddleMain->x + (paddleMain->w / 2));
         ballMain->y = (paddleMain->y + paddleMain->h + 4);
-        ballMain->dirY = fabs(ballMain->dirY); // force it to be positive
-        ballMain->dirX = 0; // force it to be positive
-        gameStart = false;
-        levelNow = 1;
-        lives = 3;
-        score = 0;
-    }
-    
-    if (key == '1') {
-        //restart level func
-        levelMain->bars.clear();
-        levelOne();
-        ballMain->speed = 0;
-        ballMain->x = (paddleMain->x + (paddleMain->w / 2));
-        ballMain->y = (paddleMain->y + paddleMain->h + 4);
-        ballMain->dirY = fabs(ballMain->dirY); // force it to be positive
-        ballMain->dirX = 0; // force it to be positive
+        ballMain->dirY = fabs(ballMain->dirY);
+        ballMain->dirX = 0;
         gameStart = false;
         levelNow = 1;
         lives = 3;
@@ -71,8 +53,7 @@ static void key(unsigned char key, int x, int y)
     glutPostRedisplay();
 }
 
-void mouseMove(int x, int y)
-{
+void mouseMove(int x, int y){
     if (x < (paddleMain->w / 2)) {
         paddleMain->x = 0;
     } else if ( x > (width - (paddleMain->w / 2))) {
@@ -93,12 +74,9 @@ void updateBall(){
     ballMain->x += ballMain->dirX * ballMain->speed;
     ballMain->y += ballMain->dirY * ballMain->speed;
 
-    // hit by left racket?
     if (paddleMain->isHit(ballMain)) {
-        // set fly direction depending on where it hit the racket
-        // (t is 0.5 if hit at top, 0 at center, -0.5 at bottom)
         float t = ((ballMain->x - paddleMain->x) / paddleMain->w) - 0.5f;
-        ballMain->dirY = fabs(ballMain->dirY); // force it to be positive
+        ballMain->dirY = fabs(ballMain->dirY);
         ballMain->dirX = t;
     }
     int blocksLeft = 0;
@@ -137,23 +115,20 @@ void updateBall(){
         ballMain->speed = 0;
         ballMain->x = (paddleMain->x + (paddleMain->w / 2));
         ballMain->y = (paddleMain->y + paddleMain->h + 4);
-        ballMain->dirY = fabs(ballMain->dirY); // force it to be positive
-        ballMain->dirX = 0; // force it to be positive
+        ballMain->dirY = fabs(ballMain->dirY);
+        ballMain->dirX = 0;
         gameStart = false;
     }
-    // hit left wall?
+   //If Left/Right/Top/Bottom Wall (in that order) have been hit
     if (ballMain->x < 0) {
         ballMain->dirX = fabs(ballMain->dirX);
     }
-    // hit right wall?
     if (ballMain->x > width) {
         ballMain->dirX = -fabs(ballMain->dirX);
     }
-    // hit top wall?
     if (ballMain->y > height) {
-        ballMain->dirY = -fabs(ballMain->dirY); // force it to be negative
+        ballMain->dirY = -fabs(ballMain->dirY);
     }
-    // hit bottom wall?
     if (ballMain->y < 0) {
         --lives;
         score -= 20;
@@ -161,25 +136,17 @@ void updateBall(){
         ballMain->speed = 0;
         ballMain->x = (paddleMain->x + (paddleMain->w / 2));
         ballMain->y = (paddleMain->y + paddleMain->h + 4);
-        ballMain->dirY = fabs(ballMain->dirY); // force it to be positive
-        ballMain->dirX = 0; // force it to be positive
+        ballMain->dirY = fabs(ballMain->dirY);
+        ballMain->dirX = 0;
     }
-    // make sure that length of dir stays at 1
     vec2_norm(ballMain->dirX, ballMain->dirY);
 }
-
 void update(int value){
-    // update ball
     updateBall();
-
-    // Call update() again in 'interval' milliseconds
     glutTimerFunc(interval, update, 0);
-
-    // Redisplay frame
     glutPostRedisplay();
 }
 void draw(){
-    // clear (has to be done at the beginning)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     if (lives > 0) {
@@ -192,39 +159,35 @@ void draw(){
         ballMain->speed = 0;
         ballMain->x = (paddleMain->x + (paddleMain->w / 2));
         ballMain->y = (paddleMain->y + paddleMain->h + 4);
-        ballMain->dirY = fabs(ballMain->dirY); // force it to be positive
-        ballMain->dirX = 0; // force it to be positive
+        ballMain->dirY = fabs(ballMain->dirY);
+        ballMain->dirX = 0;
         gameStart = false;
         lives = 3;
         score = 0;
     }
-    // draw lives
+   //Lives
     glColor3f(1.0f, 1.0f, 1.0f);
-    drawText(10, height - 15,
-             ("Lives: " + int2str(lives) + " | Score: " + int2str(score)).c_str());
+    Text(14, height - 15,
+             ("Lives: " + scoring(lives) + "                                                                                               Score: " + scoring(score)).c_str());
     glutSwapBuffers();
 }
 
 int main(int argc, char** argv){
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(width, height);
     glutCreateWindow("Brick Breaker");
-
     // Register callback functions
     glutKeyboardFunc(key);
     glutMouseFunc(mouseButton);
     glutMotionFunc(mouseMove);
     glutDisplayFunc(draw);
     glutTimerFunc((1000 / 60), update, 0);
-    //use this to draw your level
-    //then run in terminal or whatever ie. make; ./glutapp
+    
     levelOne();
-    // setup scene to 2d mode and set draw color to white
     enable2D(width, height);
     glColor3f(1.0f, 1.0f, 1.0f);
-    // start the whole thing
+
     glutMainLoop();
     return 0;
 }
